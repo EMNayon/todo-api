@@ -1,0 +1,36 @@
+
+---
+
+### 🔰 Practice Task Ideas (API ভিত্তিক):
+
+1. **Basic CRUD:**
+   - `todos` table create করো
+   - Model, migration, controller (API resource) তৈরি করো
+   - Route define করো `/api/todos` এর জন্য
+
+2. **Validation যোগ করো** request গুলোর মধ্যে
+
+3. **Resource class** দিয়ে response format করো
+
+4. **Authentication** (later): Sanctum/JWT দিয়ে token-based auth practice করো
+
+5. **Filtering, Searching**: `/api/todos?status=pending` ইত্যাদি
+
+---
+
+### 📁 Folder Structure Tips (Laravel API Project):
+
+- Routes: `routes/api.php`
+- Controllers: `App\Http\Controllers\API`
+- Models: `App\Models\Todo`
+- Requests: `App\Http\Requests`
+- Resources: `App\Http\Resources`
+
+---
+
+### ✍️ Example API route (`routes/api.php`):
+
+```php
+use App\Http\Controllers\API\TodoController;
+
+Route::apiResource('todos', TodoController::class);
