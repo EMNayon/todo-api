@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Todo;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
@@ -12,7 +13,8 @@ class TodoController extends Controller
      */
     public function index()
     {
-        //
+        $todos = Todo::all();
+        return response()->json($todos, 201);
     }
 
     /**
@@ -20,7 +22,9 @@ class TodoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // $request->all();
+        $todo = Todo::create($request->all());
+        return response()->json($todo , 201);
     }
 
     /**
@@ -28,7 +32,7 @@ class TodoController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Todo::find($id) ?? response(['message', 'Sorry, the requested todo could not be found.'], 404);
     }
 
     /**
@@ -36,7 +40,10 @@ class TodoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $todo = Todo::find($id);
+        if(!$todo) return response(['message' , 'Sorry, the requested todo could not be found.']);
+        $todo->update($request->only('title', 'description' , 'due_date', 'is_completed'));
+        return response()->json($todo);
     }
 
     /**
@@ -44,6 +51,9 @@ class TodoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $todo = Todo::find($id);
+        if(!$todo) return response(['message', 'Sorry, the requested todo could not be found.'], 404);
+        $todo->delete();
+        return response(['message', 'The requested todo deleted']);
     }
 }
