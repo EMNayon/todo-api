@@ -34,3 +34,18 @@
 use App\Http\Controllers\API\TodoController;
 
 Route::apiResource('todos', TodoController::class);
+
+
+
+Summary Checklist: Mid/Advanced Level Todo API
+Feature	দরকার?
+✅ Validation	অবশ্যই
+✅ API Resource	অবশ্যই
+✅ Proper HTTP Codes	অবশ্যই
+✅ Exception Handling	অবশ্যই
+✅ Authentication (Sanctum)	হ্যাঁ
+✅ Pagination	হ্যাঁ
+✅ Filtering/Search	হ্যাঁ
+✅ Soft Deletes	ভালো হবে
+✅ API Testing	Professional
+✅ API Docs (Swagger)	Optional
