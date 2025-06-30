@@ -14,7 +14,7 @@ class TodoController extends Controller
     public function index()
     {
         $todos = Todo::all();
-        return response()->json($todos, 201);
+        return response()->json($todos, 200);
     }
 
     /**
@@ -32,7 +32,11 @@ class TodoController extends Controller
      */
     public function show(string $id)
     {
-        return Todo::find($id) ?? response(['message', 'Sorry, the requested todo could not be found.'], 404);
+        $todo = Todo::find($id);
+        if(!$todo){
+            return response()->json(['message', 'Sorry, the requested todo could not be found.'], 404);
+        }
+        return response()->json($todo, 200);
     }
 
     /**
@@ -41,9 +45,9 @@ class TodoController extends Controller
     public function update(Request $request, string $id)
     {
         $todo = Todo::find($id);
-        if(!$todo) return response(['message' , 'Sorry, the requested todo could not be found.']);
+        if(!$todo) return response(['message' , 'Sorry, the requested todo could not be found.'] , 404);
         $todo->update($request->only('title', 'description' , 'due_date', 'is_completed'));
-        return response()->json($todo);
+        return response()->json($todo, 200);
     }
 
     /**
@@ -54,6 +58,6 @@ class TodoController extends Controller
         $todo = Todo::find($id);
         if(!$todo) return response(['message', 'Sorry, the requested todo could not be found.'], 404);
         $todo->delete();
-        return response(['message', 'The requested todo deleted']);
+        return response(['message', 'The requested todo deleted'], 200);
     }
 }
