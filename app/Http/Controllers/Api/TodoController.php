@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\TodoResource;
 use App\Models\Todo;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -16,7 +17,8 @@ class TodoController extends Controller
     public function index()
     {
         $todos = Todo::all();
-        return response()->json($todos, 200);
+        // return response()->json($todos, 200);
+        return TodoResource::collection($todos);
     }
 
     /**
@@ -26,7 +28,8 @@ class TodoController extends Controller
     {
         // $request->all();
         $todo = Todo::create($request->validated());
-        return response()->json($todo , 201);
+        // return response()->json($todo , 201);
+        return (new TodoResource($todo))->response()->setStatusCode(201);
     }
 
     /**
@@ -38,7 +41,8 @@ class TodoController extends Controller
         if(!$todo){
             return response()->json(['message', 'Sorry, the requested todo could not be found.'], 404);
         }
-        return response()->json($todo, 200);
+        // return response()->json($todo, 200);
+        return new TodoResource($todo);
     }
 
     /**
@@ -49,7 +53,8 @@ class TodoController extends Controller
         $todo = Todo::find($id);
         if(!$todo) return response(['message' , 'Sorry, the requested todo could not be found.'] , 404);
         $todo->update($request->validated());
-        return response()->json($todo, 200);
+        // return response()->json($todo, 200);
+        return new TodoResource($todo);
     }
 
     /**
