@@ -38,9 +38,10 @@ class TodoController extends Controller
     public function show(string $id)
     {
         $todo = Todo::find($id);
-        if(!$todo){
-            return response()->json(['message', 'Sorry, the requested todo could not be found.'], 404);
-        }
+        // if(!$todo){
+        //     return response()->json(['message', 'Sorry, the requested todo could not be found.'], 404);
+        // }
+        abort_if(!$todo, 404, 'Sorry, the requested todo could not be found.');
         // return response()->json($todo, 200);
         return new TodoResource($todo);
     }
