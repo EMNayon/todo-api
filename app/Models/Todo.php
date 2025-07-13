@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,8 +8,14 @@ class Todo extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $guarded    = ['id'];
     protected $attributes = [
         'is_completed' => false,
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }
