@@ -5,7 +5,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
 use App\Http\Resources\TodoResource;
-use App\Models\Todo;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
@@ -15,18 +14,25 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
-        // $todos = Todo::all();
-        // $todos = Todo::with('user')->get();
-        // $todos = $request->user()->todos()->paginate(5);
         $todos = $request->user()->todos()->latest();
-        if($request->has('search')){
-            $todos = $todos->where('title', 'like', '%'.$request->search.'%')
-                ->orWhere('description', 'like', '%'.$request->search.'%');
+        if ($request->has('search')) {
+            $todos = $todos->where('title', 'like', '%' . $request->search . '%')
+                ->orWhere('description', 'like', '%' . $request->search . '%');
         }
+
+        // Filter by title
+        if ($request->filled('due_date')) {
+            $todos->whereDate('due_date', $request->input('due_date'));
+        }
+
+        // Filter by is_complete (1 or 0)
+        if ($request->has('is_completed')) {
+            $todos->where('is_completed', $request->boolean('is_completed'));
+        }
+
         $todos = $todos->paginate(5);
 
-
-        if($todos->isEmpty()){
+        if ($todos->isEmpty()) {
             return response()->json(['message' => 'No todos found'], 404);
         }
         // return response()->json($todos, 200);
@@ -38,11 +44,8 @@ class TodoController extends Controller
      */
     public function store(StoreTodoRequest $request)
     {
-        // $request->all();
-        // $todo = Todo::create($request->validated());
-        // $todo = auth()->user()->todos()->create($request->validated());
         $todo = $request->user()->todos()->create($request->validated());
-        if(!$todo){
+        if (! $todo) {
             return response()->json(['message' => 'Todo could not be created'], 500);
         }
         // return response()->json($todo , 201);
@@ -52,11 +55,11 @@ class TodoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show( Request $request,  string $id)
+    public function show(Request $request, string $id)
     {
         // $todo = Todo::find($id);
         $todo = $request->user()->todos()->find($id);
-        if(!$todo){
+        if (! $todo) {
             return response()->json(['message', 'Sorry, the requested todo could not be found.'], 404);
         }
         // abort_if(! $todo, 404, 'Sorry, the requested todo could not be found.');
@@ -83,7 +86,7 @@ class TodoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id , Request $request)
+    public function destroy(string $id, Request $request)
     {
         // $todo = Todo::find($id);
         $todo = $request->user()->todos()->find($id);
