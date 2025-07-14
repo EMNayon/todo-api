@@ -1,19 +1,28 @@
 <?php
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use App\Traits\HasTodoSearch;
-use App\Traits\HasTodoFilters;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\TodoResource;
 use App\Http\Requests\StoreTodoRequest;
-use App\Traits\ApplyAllTodoQueryScopes;
 use App\Http\Requests\UpdateTodoRequest;
+use App\Http\Resources\TodoResource;
+use App\Models\Todo;
+use App\Services\TodoService;
+use App\Traits\ApplyAllTodoQueryScopes;
+use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
     // use HasTodoFilters, HasTodoSearch;
     use ApplyAllTodoQueryScopes;
+
+    /**
+     * Create a new controller instance.
+     */
+    // protected $todoService;
+    // public function __construct( TodoService $todoService ){}
+    public function __construct(protected TodoService $todoService)
+    {}
+
     /**
      * Display a listing of the resource.
      */
@@ -22,7 +31,7 @@ class TodoController extends Controller
         $todos = $request->user()->todos()->latest();
 
         $todos = $this->applyAllTodoQueryScopes($todos, $request);
-        
+
         $todos = $todos->paginate(5);
 
         if ($todos->isEmpty()) {
@@ -36,7 +45,7 @@ class TodoController extends Controller
      */
     public function store(StoreTodoRequest $request)
     {
-        $todo = $request->user()->todos()->create($request->validated());
+        $todo = $this->todoService->store($request->validated());
         if (! $todo) {
             return response()->json(['message' => 'Todo could not be created'], 500);
         }
@@ -46,10 +55,9 @@ class TodoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $id)
+    public function show(Request $request, Todo $todo)
     {
-        // $todo = Todo::find($id);
-        $todo = $request->user()->todos()->find($id);
+        $todo = $request->user()->todos()->find($todo);
         if (! $todo) {
             return response()->json(['message', 'Sorry, the requested todo could not be found.'], 404);
         }
@@ -59,9 +67,9 @@ class TodoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTodoRequest $request, string $id)
+    public function update(UpdateTodoRequest $request, Todo $todo)
     {
-        $todo = $request->user()->todos()->find($id);
+        $todo = $this->todoService->update($todo, $request->validated());
         if (! $todo) {
             return response(['message', 'Sorry, the requested todo could not be found.'], 404);
         }
@@ -73,15 +81,10 @@ class TodoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, Request $request)
+    public function destroy(Todo $todo, Request $request)
     {
-        // $todo = Todo::find($id);
-        $todo = $request->user()->todos()->find($id);
-        if (! $todo) {
-            return response(['message', 'Sorry, the requested todo could not be found.'], 404);
-        }
+        $todo = $this->todoService->delete($todo);
 
-        $todo->delete();
-        return response(['message', 'The requested todo deleted'], 200);
+        return response()->json(['message' => 'The requested todo has been deleted successfully.'], 200);
     }
 }
