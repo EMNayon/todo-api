@@ -7,11 +7,13 @@ use App\Traits\HasTodoFilters;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TodoResource;
 use App\Http\Requests\StoreTodoRequest;
+use App\Traits\ApplyAllTodoQueryScopes;
 use App\Http\Requests\UpdateTodoRequest;
 
 class TodoController extends Controller
 {
-    use HasTodoFilters, HasTodoSearch;
+    // use HasTodoFilters, HasTodoSearch;
+    use ApplyAllTodoQueryScopes;
     /**
      * Display a listing of the resource.
      */
@@ -19,15 +21,13 @@ class TodoController extends Controller
     {
         $todos = $request->user()->todos()->latest();
 
-        $this->applyTodoFilters($todos, $request);
-        $this->applyTodoSearch($todos, $request);
-
+        $todos = $this->applyAllTodoQueryScopes($todos, $request);
+        
         $todos = $todos->paginate(5);
 
         if ($todos->isEmpty()) {
             return response()->json(['message' => 'No todos found'], 404);
         }
-        // return response()->json($todos, 200);
         return TodoResource::collection($todos);
     }
 
@@ -40,7 +40,6 @@ class TodoController extends Controller
         if (! $todo) {
             return response()->json(['message' => 'Todo could not be created'], 500);
         }
-        // return response()->json($todo , 201);
         return (new TodoResource($todo))->response()->setStatusCode(201);
     }
 
@@ -54,8 +53,6 @@ class TodoController extends Controller
         if (! $todo) {
             return response()->json(['message', 'Sorry, the requested todo could not be found.'], 404);
         }
-        // abort_if(! $todo, 404, 'Sorry, the requested todo could not be found.');
-        // return response()->json($todo, 200);
         return new TodoResource($todo);
     }
 
@@ -64,14 +61,12 @@ class TodoController extends Controller
      */
     public function update(UpdateTodoRequest $request, string $id)
     {
-        // $todo = Todo::find($id);
         $todo = $request->user()->todos()->find($id);
         if (! $todo) {
             return response(['message', 'Sorry, the requested todo could not be found.'], 404);
         }
 
         $todo->update($request->validated());
-        // return response()->json($todo, 200);
         return new TodoResource($todo);
     }
 
