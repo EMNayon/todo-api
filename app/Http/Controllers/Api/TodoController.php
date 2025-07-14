@@ -17,7 +17,7 @@ class TodoController extends Controller
     {
         // $todos = Todo::all();
         // $todos = Todo::with('user')->get();
-        $todos = $request->user()->todos()->get();
+        $todos = $request->user()->todos()->paginate(5);
 
         if($todos->isEmpty()){
             return response()->json(['message' => 'No todos found'], 404);
