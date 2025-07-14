@@ -1,34 +1,26 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
+use App\Traits\HasTodoSearch;
+use App\Traits\HasTodoFilters;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TodoResource;
 use App\Http\Requests\StoreTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
-use App\Http\Resources\TodoResource;
-use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
+    use HasTodoFilters, HasTodoSearch;
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $todos = $request->user()->todos()->latest();
-        if ($request->has('search')) {
-            $todos = $todos->where('title', 'like', '%' . $request->search . '%')
-                ->orWhere('description', 'like', '%' . $request->search . '%');
-        }
 
-        // Filter by title
-        if ($request->filled('due_date')) {
-            $todos->whereDate('due_date', $request->input('due_date'));
-        }
-
-        // Filter by is_complete (1 or 0)
-        if ($request->has('is_completed')) {
-            $todos->where('is_completed', $request->boolean('is_completed'));
-        }
+        $this->applyTodoFilters($todos, $request);
+        $this->applyTodoSearch($todos, $request);
 
         $todos = $todos->paginate(5);
 
